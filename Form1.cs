@@ -1,4 +1,5 @@
 using Microsoft.Data.SqlClient;
+using System.Drawing;
 
 namespace MinhasDividas
 {
@@ -25,6 +26,8 @@ namespace MinhasDividas
             else
             {
                 lblStatus.ResetText();
+                txtDesc.ResetText();
+                txtValor.ResetText();
             }
             // CONEXAO COM BANCO DE DADOS
             /*string connectionString = "";
@@ -58,6 +61,40 @@ namespace MinhasDividas
                     lblStatus.Text = ex.Message;
                 }
             }*/
+        }
+
+        private void btnDel_Click(object sender, EventArgs e)
+        {
+            string descDel = txtDel.Text;
+            if (string.IsNullOrEmpty(descDel))
+            {
+                lblStatusDel.Text = "Preencha o campo deletar.";
+            }
+            else
+            {
+                lblStatusDel.ResetText();
+                txtDel.ResetText();
+            }
+        }
+
+        private void btnEditar_Click(object sender, EventArgs e)
+        {
+            string descEdit = txtDescEdit.Text;
+            string valorEdit = txtValorEdit.Text;
+            if (string.IsNullOrEmpty(descEdit) && string.IsNullOrEmpty(valorEdit))
+            {
+                lblStatusEditar.Text = "Preencha os campos editar.";
+            }
+            else if (string.IsNullOrEmpty(descEdit) || string.IsNullOrEmpty(valorEdit))
+            {
+                lblStatusEditar.Text = "Preencha todos os campos editar.";
+            }
+            else
+            {
+                lblStatusEditar.ResetText();
+                txtDescEdit.ResetText();
+                txtValorEdit.ResetText();
+            }
         }
     }
 }
