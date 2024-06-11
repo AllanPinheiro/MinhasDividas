@@ -62,7 +62,7 @@ namespace MinhasDividas
                 }
             }*/
         }
-
+        // BOTAO DELETAR
         private void btnDel_Click(object sender, EventArgs e)
         {
             string descDel = txtDel.Text;
@@ -76,7 +76,7 @@ namespace MinhasDividas
                 txtDel.ResetText();
             }
         }
-
+        // BOTAO EDITAR
         private void btnEditar_Click(object sender, EventArgs e)
         {
             string descEdit = txtDescEdit.Text;
