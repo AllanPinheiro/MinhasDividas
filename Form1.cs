@@ -7,46 +7,70 @@ namespace MinhasDividas
 {
     public partial class Form1 : Form
     {
+        private System.Windows.Forms.Timer timerStatusAdd;
+        private System.Windows.Forms.Timer timerStatusDel;
+        private System.Windows.Forms.Timer timerStatusEdit;
         public Form1()
         {
             InitializeComponent();
             LoadData();
+            InitializeTimers();
         }
-
-        // BOTAO ADICIONAR
+        private void InitializeTimers()
+        {
+            timerStatusAdd = new System.Windows.Forms.Timer();
+            timerStatusAdd.Interval = 2000;
+            timerStatusAdd.Tick += (s, e) =>
+            {
+                lblStatus.Text = string.Empty;
+                timerStatusAdd.Stop();
+            };
+            timerStatusDel = new System.Windows.Forms.Timer();
+            timerStatusDel.Interval = 2000;
+            timerStatusDel.Tick += (s, e) =>
+            {
+                lblStatusDel.Text = string.Empty;
+                timerStatusDel.Stop();
+            };
+            timerStatusEdit = new System.Windows.Forms.Timer();
+            timerStatusEdit.Interval = 2000;
+            timerStatusEdit.Tick += (s, e) =>
+            {
+                lblStatusEditar.Text = string.Empty;
+                timerStatusEdit.Stop();
+            };
+        }
         private void btnAdd_Click(object sender, EventArgs e)
         {
-            // VERIFICA CAMPOS SE ESTAO VAZIO
             string desc = txtDesc.Text;
             string valor = txtValor.Text;
             if (string.IsNullOrEmpty(desc) && string.IsNullOrEmpty(valor))
             {
                 lblStatus.Text = "Por favor, preencha os campos.";
+                timerStatusAdd.Start();
                 return;
             }
             else if (string.IsNullOrEmpty(desc) || string.IsNullOrEmpty(valor))
             {
                 lblStatus.Text = "Por favor, preencha todos os campos.";
+                timerStatusAdd.Start();
                 return;
             }
-
-            // CONEXAO COM BANCO DE DADOS
             string connectionString = "Data Source=DESKTOP-QRDBJEB\\SQLEXPRESS;Initial Catalog=DBMINHASDIVIDA;Integrated Security=True;Connect Timeout=30;Encrypt=True;Trust Server Certificate=True;Application Intent=ReadWrite;Multi Subnet Failover=False";
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
                 try
                 {
                     connection.Open();
-                    // METODO INSERT INTO NO BANCO DE DADOS
                     string query = "INSERT INTO DIVIDAS (DESCRICAO, VALOR) VALUES (@DESCRICAO, @VALOR)";
                     SqlCommand cmd = new SqlCommand(query, connection);
-                    // EVITAR SQL INJECTION
                     cmd.Parameters.AddWithValue("@DESCRICAO", desc);
                     cmd.Parameters.AddWithValue("@VALOR", valor);
                     int rowsAffected = cmd.ExecuteNonQuery();
                     if (rowsAffected > 0)
                     {
                         lblStatus.Text = "Adicionado com sucesso!";
+                        timerStatusAdd.Start();
                         txtDesc.ResetText();
                         txtValor.ResetText();
                         LoadData();
@@ -58,8 +82,6 @@ namespace MinhasDividas
                 }
             }
         }
-
-        // LOAD DE ITEM ADICIONADO
         private void LoadData()
         {
             string connectionString = "Data Source=DESKTOP-QRDBJEB\\SQLEXPRESS;Initial Catalog=DBMINHASDIVIDA;Integrated Security=True;Connect Timeout=30;Encrypt=True;Trust Server Certificate=True;Application Intent=ReadWrite;Multi Subnet Failover=False";
@@ -93,15 +115,13 @@ namespace MinhasDividas
                 }
             }
         }
-
-        // BOTAO DELETAR
         private void btnDel_Click(object sender, EventArgs e)
         {
-            // VERIFICA CAMPO SE ESTAO VAZIO
             string descDel = txtDel.Text;
             if (string.IsNullOrEmpty(descDel))
             {
                 lblStatusDel.Text = "Preencha o campo deletar.";
+                timerStatusDel.Start();
                 return;
             }
             else
@@ -110,7 +130,6 @@ namespace MinhasDividas
                 txtDel.ResetText();
             }
 
-            // CONEXAO COM BANCO DE DADOS
             string connectionString = "Data Source=DESKTOP-QRDBJEB\\SQLEXPRESS;Initial Catalog=DBMINHASDIVIDA;Integrated Security=True;Connect Timeout=30;Encrypt=True;Trust Server Certificate=True;Application Intent=ReadWrite;Multi Subnet Failover=False";
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
@@ -118,16 +137,14 @@ namespace MinhasDividas
                 {
                     connection.Open();
 
-                    // METODO INSERT INTO NO BANCO DE DADOS
                     string query = "DELETE FROM DIVIDAS WHERE DESCRICAO = @DESCRICAO";
                     SqlCommand cmd = new SqlCommand(query, connection);
-
-                    // EVITAR SQL INJECTION
                     cmd.Parameters.AddWithValue("@DESCRICAO", descDel);
                     int rowsAffected = cmd.ExecuteNonQuery();
                     if (rowsAffected > 0)
                     {
                         lblStatusDel.Text = "Deletado com sucesso!";
+                        timerStatusDel.Start();
                         txtDel.ResetText();
                         LoadData();
                     }
@@ -142,22 +159,21 @@ namespace MinhasDividas
                 }
             }
         }
-
-        // BOTAO EDITAR
         private void btnEditar_Click(object sender, EventArgs e)
         {
-            // VERIFICA CAMPOS SE ESTAO VAZIO
             string id = txtIdEdit.Text;
             string descEdit = txtDescEdit.Text;
             string valorEdit = txtValorEdit.Text;
             if (string.IsNullOrEmpty(descEdit) && string.IsNullOrEmpty(valorEdit))
             {
                 lblStatusEditar.Text = "Preencha os campos editar.";
+                timerStatusEdit.Start();
                 return;
             }
             else if (string.IsNullOrEmpty(descEdit) || string.IsNullOrEmpty(valorEdit))
             {
                 lblStatusEditar.Text = "Preencha todos os campos editar.";
+                timerStatusEdit.Start();
                 return;
             }
             else
@@ -166,18 +182,14 @@ namespace MinhasDividas
                 txtDescEdit.ResetText();
                 txtValorEdit.ResetText();
             }
-
-            // CONEXAO COM BANCO DE DADOS
             string connectionString = "Data Source=DESKTOP-QRDBJEB\\SQLEXPRESS;Initial Catalog=DBMINHASDIVIDA;Integrated Security=True;Connect Timeout=30;Encrypt=True;Trust Server Certificate=True;Application Intent=ReadWrite;Multi Subnet Failover=False";
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
                 try
                 {
                     connection.Open();
-                    // METODO INSERT INTO NO BANCO DE DADOS
                     string query = "UPDATE DIVIDAS SET DESCRICAO = @DESCRICAO, VALOR = @VALOR WHERE ID = @ID";
                     SqlCommand cmd = new SqlCommand(query, connection);
-                    // EVITAR SQL INJECTION
                     cmd.Parameters.AddWithValue("@DESCRICAO", descEdit);
                     cmd.Parameters.AddWithValue("@VALOR", valorEdit);
                     cmd.Parameters.AddWithValue("@ID", id);
@@ -185,6 +197,7 @@ namespace MinhasDividas
                     if (rowsAffected > 0)
                     {
                         lblStatusEditar.Text = "Item editado com sucesso!";
+                        timerStatusEdit.Start();
                         txtIdEdit.ResetText();
                         txtDescEdit.ResetText();
                         txtValorEdit.ResetText();
