@@ -197,6 +197,9 @@ namespace MinhasDividas
                     {
                         lblStatusEditar.Text = "Item não existe!";
                         timerStatusEdit.Start();
+                        txtIdEdit.Clear();
+                        txtDescEdit.Clear();
+                        txtValorEdit.Clear();
                     }
                 }
                 catch (Exception ex)
