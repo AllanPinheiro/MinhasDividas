@@ -123,16 +123,16 @@
             label3.Font = new Font("Segoe UI Black", 26.25F, FontStyle.Bold);
             label3.Location = new Point(407, 375);
             label3.Name = "label3";
-            label3.Size = new Size(176, 47);
+            label3.Size = new Size(110, 47);
             label3.TabIndex = 6;
-            label3.Text = "Total R$:";
+            label3.Text = "Total";
             // 
             // lblSomaValor
             // 
             lblSomaValor.AutoSize = true;
             lblSomaValor.Font = new Font("Segoe UI Black", 26.25F, FontStyle.Bold);
             lblSomaValor.ForeColor = Color.Red;
-            lblSomaValor.Location = new Point(594, 375);
+            lblSomaValor.Location = new Point(506, 375);
             lblSomaValor.Name = "lblSomaValor";
             lblSomaValor.Size = new Size(41, 47);
             lblSomaValor.TabIndex = 7;
