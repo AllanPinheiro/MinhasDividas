@@ -107,6 +107,38 @@ namespace MinhasDividas
                 lblStatusDel.ResetText();
                 txtDel.ResetText();
             }
+
+            // CONEXAO COM BANCO DE DADOS
+            string connectionString = "Data Source=DESKTOP-QRDBJEB\\SQLEXPRESS;Initial Catalog=DBMINHASDIVIDA;Integrated Security=True;Connect Timeout=30;Encrypt=True;Trust Server Certificate=True;Application Intent=ReadWrite;Multi Subnet Failover=False";
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                try
+                {
+                    connection.Open();
+
+                    // METODO INSERT INTO NO BANCO DE DADOS
+                    string query = "DELETE FROM DIVIDAS WHERE DESCRICAO = @DESCRICAO";
+                    SqlCommand cmd = new SqlCommand(query, connection);
+
+                    // EVITAR SQL INJECTION
+                    cmd.Parameters.AddWithValue("@DESCRICAO", descDel);
+                    int rowsAffected = cmd.ExecuteNonQuery();
+                    if (rowsAffected > 0)
+                    {
+                        lblStatusDel.Text = "Deletado com sucesso!";
+                        txtDel.ResetText();
+                        LoadData();
+                    }
+                    else
+                    {
+                        lblStatusDel.Text = "Item não existe!";
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Erro ao carregar os dados: " + ex.Message);
+                }
+            }
         }
 
         // BOTAO EDITAR
