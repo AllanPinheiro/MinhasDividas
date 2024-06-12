@@ -1,5 +1,6 @@
 using Microsoft.Data.SqlClient;
 using System.Data;
+using System.Drawing;
 using System.Windows.Forms;
 
 namespace MinhasDividas
@@ -67,19 +68,20 @@ namespace MinhasDividas
                 try
                 {
                     connection.Open();
-                    string query = "SELECT DESCRICAO, VALOR FROM DIVIDAS ORDER BY VALOR ASC";
+                    string query = "SELECT ID, DESCRICAO, VALOR FROM DIVIDAS ORDER BY VALOR DESC";
                     SqlDataAdapter da = new SqlDataAdapter(query, connection);
                     DataTable dt = new DataTable();
                     da.Fill(dt);
                     lstItems.Items.Clear();
-                    decimal somaTotal = 0; // VariÃ¡vel para acumular a soma dos valores
+                    decimal somaTotal = 0; // Variável para acumular a soma dos valores
 
                     foreach (DataRow row in dt.Rows)
                     {
+                        int id = Convert.ToInt32(row["ID"]); // Obtém o ID da linha
                         decimal valor = Convert.ToDecimal(row["VALOR"]);
-                        somaTotal += valor; // Adiciona o valor atual Ã  soma total
+                        somaTotal += valor; // Adiciona o valor atual à soma total
                         string valorFormatado = valor.ToString("C2", new System.Globalization.CultureInfo("pt-BR"));
-                        lstItems.Items.Add($"----- DescriÃ§Ã£o: {row["DESCRICAO"]} ----- Valor R$: {valorFormatado} -----");
+                        lstItems.Items.Add($"---- ID: {id} ----- Descrição: {row["DESCRICAO"]} ----- Valor R$: {valorFormatado} -----");
                     }
                     // Formatar e exibir a soma total
                     string somaTotalFormatada = somaTotal.ToString("C2", new System.Globalization.CultureInfo("pt-BR"));
@@ -131,7 +133,7 @@ namespace MinhasDividas
                     }
                     else
                     {
-                        lblStatusDel.Text = "Item nÃ£o existe!";
+                        lblStatusDel.Text = "Item não existe!";
                     }
                 }
                 catch (Exception ex)
@@ -145,6 +147,7 @@ namespace MinhasDividas
         private void btnEditar_Click(object sender, EventArgs e)
         {
             // VERIFICA CAMPOS SE ESTAO VAZIO
+            string id = txtIdEdit.Text;
             string descEdit = txtDescEdit.Text;
             string valorEdit = txtValorEdit.Text;
             if (string.IsNullOrEmpty(descEdit) && string.IsNullOrEmpty(valorEdit))
@@ -162,6 +165,40 @@ namespace MinhasDividas
                 lblStatusEditar.ResetText();
                 txtDescEdit.ResetText();
                 txtValorEdit.ResetText();
+            }
+
+            // CONEXAO COM BANCO DE DADOS
+            string connectionString = "Data Source=DESKTOP-QRDBJEB\\SQLEXPRESS;Initial Catalog=DBMINHASDIVIDA;Integrated Security=True;Connect Timeout=30;Encrypt=True;Trust Server Certificate=True;Application Intent=ReadWrite;Multi Subnet Failover=False";
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                try
+                {
+                    connection.Open();
+                    // METODO INSERT INTO NO BANCO DE DADOS
+                    string query = "UPDATE DIVIDAS SET DESCRICAO = @DESCRICAO, VALOR = @VALOR WHERE ID = @ID";
+                    SqlCommand cmd = new SqlCommand(query, connection);
+                    // EVITAR SQL INJECTION
+                    cmd.Parameters.AddWithValue("@DESCRICAO", descEdit);
+                    cmd.Parameters.AddWithValue("@VALOR", valorEdit);
+                    cmd.Parameters.AddWithValue("@ID", id);
+                    int rowsAffected = cmd.ExecuteNonQuery();
+                    if (rowsAffected > 0)
+                    {
+                        lblStatusEditar.Text = "Item editado com sucesso!";
+                        txtIdEdit.ResetText();
+                        txtDescEdit.ResetText();
+                        txtValorEdit.ResetText();
+                        LoadData();
+                    }
+                    else
+                    {
+                        lblStatusEditar.Text = "Item não existe!";
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Erro ao carregar os dados: " + ex.Message);
+                }
             }
         }
     }
