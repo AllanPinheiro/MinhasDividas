@@ -90,7 +90,7 @@ namespace MinhasDividas
                 try
                 {
                     connection.Open();
-                    string query = "SELECT ID, DESCRICAO, VALOR FROM DIVIDAS ORDER BY VALOR DESC";
+                    string query = "SELECT ID, DESCRICAO, VALOR FROM DIVIDAS ORDER BY ID ASC";
                     SqlDataAdapter da = new SqlDataAdapter(query, connection);
                     DataTable dt = new DataTable();
                     da.Fill(dt);
@@ -103,7 +103,7 @@ namespace MinhasDividas
                         decimal valor = Convert.ToDecimal(row["VALOR"]);
                         somaTotal += valor;
                         string valorFormatado = valor.ToString("C2", new System.Globalization.CultureInfo("pt-BR"));
-                        lstItems.Items.Add($"---- ID: {id} ----- Descrição: {row["DESCRICAO"]} ----- Valor R$: {valorFormatado} -----");
+                        lstItems.Items.Add($"---- ID: {id} ---- Descrição: {row["DESCRICAO"]} ---- Valor R$: {valorFormatado} ----");
                     }
 
                     string somaTotalFormatada = somaTotal.ToString("C2", new System.Globalization.CultureInfo("pt-BR"));
