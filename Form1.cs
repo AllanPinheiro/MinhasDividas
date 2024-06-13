@@ -90,7 +90,7 @@ namespace MinhasDividas
                 try
                 {
                     connection.Open();
-                    string query = "SELECT ID, DESCRICAO, VALOR FROM DIVIDAS ORDER BY ID ASC";
+                    string query = @"DBCC CHECKIDENT ('DIVIDAS', RESEED, 0);SELECT ID, DESCRICAO, VALOR FROM DIVIDAS ORDER BY ID ASC;";
                     SqlDataAdapter da = new SqlDataAdapter(query, connection);
                     DataTable dt = new DataTable();
                     da.Fill(dt);
