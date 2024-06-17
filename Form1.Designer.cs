@@ -40,8 +40,8 @@
             btnEditar = new Button();
             lblStatus = new Label();
             label4 = new Label();
-            txtValorEdit = new TextBox();
-            txtDescEdit = new TextBox();
+            txtNovoValorEdit = new TextBox();
+            txtNovaDescEdit = new TextBox();
             label5 = new Label();
             label6 = new Label();
             txtDel = new TextBox();
@@ -49,7 +49,7 @@
             label9 = new Label();
             lblStatusDel = new Label();
             lblStatusEditar = new Label();
-            txtIdEdit = new TextBox();
+            txtDescEdit = new TextBox();
             label7 = new Label();
             SuspendLayout();
             // 
@@ -185,23 +185,23 @@
             label4.TabIndex = 11;
             label4.Text = "Editar Item";
             // 
-            // txtValorEdit
+            // txtNovoValorEdit
             // 
-            txtValorEdit.Font = new Font("Segoe UI Black", 9.75F, FontStyle.Bold);
-            txtValorEdit.Location = new Point(14, 559);
-            txtValorEdit.Name = "txtValorEdit";
-            txtValorEdit.Size = new Size(386, 25);
-            txtValorEdit.TabIndex = 15;
-            txtValorEdit.TextAlign = HorizontalAlignment.Center;
+            txtNovoValorEdit.Font = new Font("Segoe UI Black", 9.75F, FontStyle.Bold);
+            txtNovoValorEdit.Location = new Point(14, 559);
+            txtNovoValorEdit.Name = "txtNovoValorEdit";
+            txtNovoValorEdit.Size = new Size(386, 25);
+            txtNovoValorEdit.TabIndex = 15;
+            txtNovoValorEdit.TextAlign = HorizontalAlignment.Center;
             // 
-            // txtDescEdit
+            // txtNovaDescEdit
             // 
-            txtDescEdit.Font = new Font("Segoe UI Black", 9.75F, FontStyle.Bold);
-            txtDescEdit.Location = new Point(14, 509);
-            txtDescEdit.Name = "txtDescEdit";
-            txtDescEdit.Size = new Size(386, 25);
-            txtDescEdit.TabIndex = 14;
-            txtDescEdit.TextAlign = HorizontalAlignment.Center;
+            txtNovaDescEdit.Font = new Font("Segoe UI Black", 9.75F, FontStyle.Bold);
+            txtNovaDescEdit.Location = new Point(14, 509);
+            txtNovaDescEdit.Name = "txtNovaDescEdit";
+            txtNovaDescEdit.Size = new Size(386, 25);
+            txtNovaDescEdit.TabIndex = 14;
+            txtNovaDescEdit.TextAlign = HorizontalAlignment.Center;
             // 
             // label5
             // 
@@ -270,13 +270,13 @@
             lblStatusEditar.Size = new Size(0, 15);
             lblStatusEditar.TabIndex = 22;
             // 
-            // txtIdEdit
+            // txtDescEdit
             // 
-            txtIdEdit.Location = new Point(14, 458);
-            txtIdEdit.Name = "txtIdEdit";
-            txtIdEdit.Size = new Size(389, 24);
-            txtIdEdit.TabIndex = 23;
-            txtIdEdit.TextAlign = HorizontalAlignment.Center;
+            txtDescEdit.Location = new Point(14, 458);
+            txtDescEdit.Name = "txtDescEdit";
+            txtDescEdit.Size = new Size(389, 24);
+            txtDescEdit.TabIndex = 23;
+            txtDescEdit.TextAlign = HorizontalAlignment.Center;
             // 
             // label7
             // 
@@ -295,14 +295,14 @@
             BackColor = SystemColors.ScrollBar;
             ClientSize = new Size(914, 641);
             Controls.Add(label7);
-            Controls.Add(txtIdEdit);
+            Controls.Add(txtDescEdit);
             Controls.Add(lblStatusEditar);
             Controls.Add(lblStatusDel);
             Controls.Add(txtDel);
             Controls.Add(label8);
             Controls.Add(label9);
-            Controls.Add(txtValorEdit);
-            Controls.Add(txtDescEdit);
+            Controls.Add(txtNovoValorEdit);
+            Controls.Add(txtNovaDescEdit);
             Controls.Add(label5);
             Controls.Add(label6);
             Controls.Add(label4);
@@ -344,8 +344,8 @@
         private Button btnEditar;
         private Label lblStatus;
         private Label label4;
-        private TextBox txtValorEdit;
-        private TextBox txtDescEdit;
+        private TextBox txtNovoValorEdit;
+        private TextBox txtNovaDescEdit;
         private Label label5;
         private Label label6;
         private TextBox txtDel;
@@ -353,7 +353,7 @@
         private Label label9;
         private Label lblStatusDel;
         private Label lblStatusEditar;
-        private TextBox txtIdEdit;
+        private TextBox txtDescEdit;
         private Label label7;
     }
 }

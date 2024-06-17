@@ -7,238 +7,236 @@ namespace MinhasDividas
 {
     public partial class Form1 : Form
     {
-        // Declaração dos timers para controlar as mensagens de status
-        private System.Windows.Forms.Timer timerStatusAdd; // Timer para adição
-        private System.Windows.Forms.Timer timerStatusDel; // Timer para exclusão
-        private System.Windows.Forms.Timer timerStatusEdit; // Timer para edição
+        private System.Windows.Forms.Timer timerStatusAdd;
+        private System.Windows.Forms.Timer timerStatusDel;
+        private System.Windows.Forms.Timer timerStatusEdit;
 
         public Form1()
         {
             InitializeComponent();
-            LoadData(); // Carrega os dados ao iniciar o formulário
-            InitializeTimers(); // Inicializa os timers
+            LoadData();
+            InitializeTimers();
         }
 
-        // Inicializa os timers e define seus eventos Tick
         private void InitializeTimers()
         {
-            timerStatusAdd = new System.Windows.Forms.Timer { Interval = 2000 }; // Timer para adição de registros
+            timerStatusAdd = new System.Windows.Forms.Timer { Interval = 2000 };
             timerStatusAdd.Tick += (s, e) =>
             {
-                lblStatus.Text = string.Empty; // Limpa o status após 2 segundos
+                lblStatus.Text = string.Empty;
                 timerStatusAdd.Stop();
             };
 
-            timerStatusDel = new System.Windows.Forms.Timer { Interval = 2000 }; // Timer para exclusão de registros
+            timerStatusDel = new System.Windows.Forms.Timer { Interval = 2000 };
             timerStatusDel.Tick += (s, e) =>
             {
-                lblStatusDel.Text = string.Empty; // Limpa o status após 2 segundos
+                lblStatusDel.Text = string.Empty;
                 timerStatusDel.Stop();
             };
 
-            timerStatusEdit = new System.Windows.Forms.Timer { Interval = 2000 }; // Timer para edição de registros
+            timerStatusEdit = new System.Windows.Forms.Timer { Interval = 2000 };
             timerStatusEdit.Tick += (s, e) =>
             {
-                lblStatusEditar.Text = string.Empty; // Limpa o status após 2 segundos
+                lblStatusEditar.Text = string.Empty;
                 timerStatusEdit.Stop();
             };
         }
 
-        // Método chamado quando o botão de adição é clicado
         private void btnAdd_Click(object sender, EventArgs e)
         {
-            string desc = txtDesc.Text; // Obtém a descrição do campo de texto
-            string valor = txtValor.Text; // Obtém o valor do campo de texto
+            string desc = txtDesc.Text;
+            string valor = txtValor.Text;
 
-            // Verifica se os campos estão vazios e exibe uma mensagem caso estejam
             if (string.IsNullOrEmpty(desc) || string.IsNullOrEmpty(valor))
             {
-                lblStatus.Text = "Por favor, preencha todos os campos."; // Exibe mensagem de status
-                timerStatusAdd.Start(); // Inicia o timer para limpar a mensagem de status
+                lblStatus.Text = "Por favor, preencha todos os campos.";
+                timerStatusAdd.Start();
                 return;
             }
 
-            // Conexão com o banco de dados
             string connectionString = "Data Source=DESKTOP-QRDBJEB\\SQLEXPRESS;Initial Catalog=DBMINHASDIVIDA;Integrated Security=True;Connect Timeout=30;Encrypt=True;Trust Server Certificate=True;Application Intent=ReadWrite;Multi Subnet Failover=False";
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
                 try
                 {
-                    connection.Open(); // Abre a conexão com o banco de dados
-
-                    // Verifica se o item já existe no banco de dados
+                    connection.Open();
                     string checkQuery = "SELECT COUNT(1) FROM DIVIDAS WHERE DESCRICAO = @DESCRICAO";
                     using (SqlCommand checkCommand = new SqlCommand(checkQuery, connection))
                     {
-                        checkCommand.Parameters.AddWithValue("@DESCRICAO", desc); // Adiciona parâmetro
-                        int count = (int)checkCommand.ExecuteScalar(); // Executa a consulta e obtém o resultado
+                        checkCommand.Parameters.AddWithValue("@DESCRICAO", desc);
+                        int count = (int)checkCommand.ExecuteScalar();
                         if (count > 0)
                         {
-                            lblStatus.Text = "Item já existe no banco de dados."; // Exibe mensagem de status
-                            timerStatusAdd.Start(); // Inicia o timer para limpar a mensagem de status
+                            lblStatus.Text = "Item já existe no banco de dados.";
+                            timerStatusAdd.Start();
                             return;
                         }
                     }
 
-                    // Insere um novo registro no banco de dados
                     string insertQuery = "INSERT INTO DIVIDAS (DESCRICAO, VALOR) VALUES (@DESCRICAO, @VALOR)";
                     using (SqlCommand cmd = new SqlCommand(insertQuery, connection))
                     {
-                        cmd.Parameters.AddWithValue("@DESCRICAO", desc); // Adiciona parâmetro
-                        cmd.Parameters.AddWithValue("@VALOR", valor); // Adiciona parâmetro
+                        cmd.Parameters.AddWithValue("@DESCRICAO", desc);
+                        cmd.Parameters.AddWithValue("@VALOR", valor);
 
-                        int rowsAffected = cmd.ExecuteNonQuery(); // Executa a inserção e obtém o número de linhas afetadas
+                        int rowsAffected = cmd.ExecuteNonQuery();
                         if (rowsAffected > 0)
                         {
-                            lblStatus.Text = "Adicionado com sucesso!"; // Exibe mensagem de status
-                            timerStatusAdd.Start(); // Inicia o timer para limpar a mensagem de status
-                            txtDesc.Clear(); // Limpa o campo de texto
-                            txtValor.Clear(); // Limpa o campo de texto
-                            LoadData(); // Recarrega os dados na lista
+                            lblStatus.Text = "Adicionado com sucesso!";
+                            timerStatusAdd.Start();
+                            txtDesc.Clear();
+                            txtValor.Clear();
+                            LoadData();
                         }
                     }
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show("Erro ao adicionar os dados: " + ex.Message); // Exibe mensagem de erro
+                    MessageBox.Show("Erro ao adicionar os dados: " + ex.Message);
                 }
             }
         }
 
-        // Método para carregar os dados na lista ao iniciar o formulário e após adições, exclusões ou edições
         private void LoadData()
         {
-            // Conexão com o banco de dados
             string connectionString = "Data Source=DESKTOP-QRDBJEB\\SQLEXPRESS;Initial Catalog=DBMINHASDIVIDA;Integrated Security=True;Connect Timeout=30;Encrypt=True;Trust Server Certificate=True;Application Intent=ReadWrite;Multi Subnet Failover=False";
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
                 try
                 {
-                    connection.Open(); // Abre a conexão com o banco de dados
-                    string query = "SELECT DESCRICAO, VALOR FROM DIVIDAS;"; // Consulta SQL
-                    SqlDataAdapter da = new SqlDataAdapter(query, connection); // Cria um adaptador de dados
-                    DataTable dt = new DataTable(); // Cria uma tabela de dados
-                    da.Fill(dt); // Preenche a tabela com os dados obtidos pela consulta
-                    lstItems.Items.Clear(); // Limpa a lista de itens
-                    decimal somaTotal = 0; // Variável para armazenar a soma total dos valores
+                    connection.Open();
+                    string query = "SELECT DESCRICAO, VALOR FROM DIVIDAS;";
+                    SqlDataAdapter da = new SqlDataAdapter(query, connection);
+                    DataTable dt = new DataTable();
+                    da.Fill(dt);
+                    lstItems.Items.Clear();
+                    decimal somaTotal = 0;
 
-                    foreach (DataRow row in dt.Rows) // Loop para cada linha da tabela de dados
+                    foreach (DataRow row in dt.Rows)
                     {
-                        decimal valor = Convert.ToDecimal(row["VALOR"]); // Obtém o valor do registro
-                        somaTotal += valor; // Adiciona o valor à soma total
-                        string valorFormatado = valor.ToString("C2", new System.Globalization.CultureInfo("pt-BR")); // Formata o valor para exibição
-                        lstItems.Items.Add($"---- Descrição: {row["DESCRICAO"]} ---- Valor R$: {valorFormatado} ----"); // Adiciona o item à lista
+                        decimal valor = Convert.ToDecimal(row["VALOR"]);
+                        somaTotal += valor;
+                        string valorFormatado = valor.ToString("C2", new System.Globalization.CultureInfo("pt-BR"));
+                        lstItems.Items.Add($"---- Descrição: {row["DESCRICAO"]} ---- Valor R$: {valorFormatado} ----");
                     }
 
-                    string somaTotalFormatada = somaTotal.ToString("C2", new System.Globalization.CultureInfo("pt-BR")); // Formata a soma total para exibição
-                    lblSomaValor.Text = $"{somaTotalFormatada}"; // Exibe a soma total no label
+                    string somaTotalFormatada = somaTotal.ToString("C2", new System.Globalization.CultureInfo("pt-BR"));
+                    lblSomaValor.Text = $"{somaTotalFormatada}";
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show("Erro ao carregar os dados: " + ex.Message); // Exibe mensagem de erro
+                    MessageBox.Show("Erro ao carregar os dados: " + ex.Message);
                 }
             }
         }
 
-        // Método chamado quando o botão de exclusão é clicado
         private void btnDel_Click(object sender, EventArgs e)
         {
-            string descDel = txtDel.Text; // Obtém a descrição do campo de texto
+            string descDel = txtDel.Text;
 
-            // Verifica se o campo está vazio e exibe uma mensagem caso esteja
             if (string.IsNullOrEmpty(descDel))
             {
-                lblStatusDel.Text = "Preencha o campo deletar."; 
-                timerStatusDel.Start(); // Inicia o timer para limpar a mensagem de status
+                lblStatusDel.Text = "Preencha o campo deletar.";
+                timerStatusDel.Start();
                 return;
             }
 
-            // Conexão com o banco de dados
             string connectionString = "Data Source=DESKTOP-QRDBJEB\\SQLEXPRESS;Initial Catalog=DBMINHASDIVIDA;Integrated Security=True;Connect Timeout=30;Encrypt=True;Trust Server Certificate=True;Application Intent=ReadWrite;Multi Subnet Failover=False";
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
                 try
                 {
-                    connection.Open(); // Abre a conexão com o banco de dados
-                    string query = "DELETE FROM DIVIDAS WHERE DESCRICAO = @DESCRICAO"; // Comando SQL para deletar um registro
-                    SqlCommand cmd = new SqlCommand(query, connection); // Cria um comando SQL
-                    cmd.Parameters.AddWithValue("@DESCRICAO", descDel); // Adiciona parâmetro ao comando SQL
+                    connection.Open();
+                    string query = "DELETE FROM DIVIDAS WHERE DESCRICAO = @DESCRICAO";
+                    SqlCommand cmd = new SqlCommand(query, connection);
+                    cmd.Parameters.AddWithValue("@DESCRICAO", descDel);
 
-                    int rowsAffected = cmd.ExecuteNonQuery(); // Executa o comando SQL e obtém o número de linhas afetadas
+                    int rowsAffected = cmd.ExecuteNonQuery();
                     if (rowsAffected > 0)
                     {
-                        lblStatusDel.Text = "Deletado com sucesso!"; // Exibe mensagem de status
-                        timerStatusDel.Start(); // Inicia o timer para limpar a mensagem de status
-                        txtDel.Clear(); // Limpa o campo de texto
-                        LoadData(); // Recarrega os dados na lista
+                        lblStatusDel.Text = "Deletado com sucesso!";
+                        timerStatusDel.Start();
+                        txtDel.Clear();
+                        LoadData();
                     }
                     else
                     {
-                        lblStatusDel.Text = "Item não existe!"; // Exibe mensagem de status
-                        timerStatusDel.Start(); // Inicia o timer para limpar a mensagem de status
+                        lblStatusDel.Text = "Item não existe!";
+                        timerStatusDel.Start();
                     }
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show("Erro ao deletar os dados: " + ex.Message); 
+                    MessageBox.Show("Erro ao deletar os dados: " + ex.Message);
                 }
             }
         }
 
-        // Método chamado quando o botão de edição é clicado
         private void btnEditar_Click(object sender, EventArgs e)
         {
-            string novaDesc = txtIdEdit.Text; // Obtém o ID do campo de texto para edição
-            string descEdit = txtDescEdit.Text; // Obtém a nova descrição do campo de texto para edição
-            string valorEdit = txtValorEdit.Text; // Obtém o novo valor do campo de texto para edição
+            string novaDesc = txtDescEdit.Text;
+            string descEdit = txtNovaDescEdit.Text;
+            string valorEdit = txtNovoValorEdit.Text;
 
-            // Verifica se os campos de edição estão vazios e exibe uma mensagem caso estejam
             if (string.IsNullOrEmpty(descEdit) || string.IsNullOrEmpty(valorEdit))
             {
-                lblStatusEditar.Text = "Preencha todos os campos para editar."; // Exibe mensagem de status
-                timerStatusEdit.Start(); // Inicia o timer para limpar a mensagem de status
+                lblStatusEditar.Text = "Preencha todos os campos para editar.";
+                timerStatusEdit.Start();
                 return;
             }
 
-            // Conexão com o banco de dados
             string connectionString = "Data Source=DESKTOP-QRDBJEB\\SQLEXPRESS;Initial Catalog=DBMINHASDIVIDA;Integrated Security=True;Connect Timeout=30;Encrypt=True;Trust Server Certificate=True;Application Intent=ReadWrite;Multi Subnet Failover=False";
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
                 try
                 {
-                    connection.Open(); // Abre a conexão com o banco de dados
-                    string query = "UPDATE DIVIDAS SET DESCRICAO = @DESCRICAO, VALOR = @VALOR WHERE DESCRICAO = @NOVADESCRICAO"; // Comando SQL para atualizar um registro
-                    SqlCommand cmd = new SqlCommand(query, connection); // Cria um comando SQL
-                    cmd.Parameters.AddWithValue("@DESCRICAO", descEdit); // Adiciona parâmetro ao comando SQL para a nova descrição
-                    cmd.Parameters.AddWithValue("@VALOR", valorEdit); // Adiciona parâmetro ao comando SQL para o novo valor
-                    cmd.Parameters.AddWithValue("@NOVADESCRICAO", novaDesc); // Adiciona parâmetro ao comando SQL para o ID do registro a ser editado
+                    string checkQuery = "SELECT COUNT(1) FROM DIVIDAS WHERE DESCRICAO = @DESCRICAO";
+                    using (SqlCommand checkCommand = new SqlCommand(checkQuery, connection))
+                    {
+                        connection.Open();
+                        checkCommand.Parameters.AddWithValue("@DESCRICAO", descEdit);
+                        int count = (int)checkCommand.ExecuteScalar();
+                        if (count > 0)
+                        {
+                            lblStatusEditar.Text = "Item já existe no banco de dados.";
+                            txtDescEdit.Clear();
+                            txtNovaDescEdit.Clear();
+                            txtNovoValorEdit.Clear();
+                            timerStatusEdit.Start();
+                            return;
+                        }
 
-                    int rowsAffected = cmd.ExecuteNonQuery(); // Executa o comando SQL e obtém o número de linhas afetadas
-                    if (rowsAffected > 0)
-                    {
-                        lblStatusEditar.Text = "Item editado com sucesso!"; // Exibe mensagem de status
-                        timerStatusEdit.Start(); // Inicia o timer para limpar a mensagem de status
-                        txtIdEdit.Clear(); // Limpa o campo de texto do ID
-                        txtDescEdit.Clear(); // Limpa o campo de texto da descrição
-                        txtValorEdit.Clear(); // Limpa o campo de texto do valor
-                        LoadData(); // Recarrega os dados na lista
-                    }
-                    else
-                    {
-                        lblStatusEditar.Text = "Item não existe!"; // Exibe mensagem de status
-                        timerStatusEdit.Start(); // Inicia o timer para limpar a mensagem de status
-                        txtIdEdit.Clear(); // Limpa o campo de texto do ID
-                        txtDescEdit.Clear(); // Limpa o campo de texto da descrição
-                        txtValorEdit.Clear(); // Limpa o campo de texto do valor
+                        string query = "UPDATE DIVIDAS SET DESCRICAO = @DESCRICAO, VALOR = @VALOR WHERE DESCRICAO = @NOVADESCRICAO";
+                        SqlCommand cmd = new SqlCommand(query, connection);
+                        cmd.Parameters.AddWithValue("@DESCRICAO", descEdit);
+                        cmd.Parameters.AddWithValue("@VALOR", valorEdit);
+                        cmd.Parameters.AddWithValue("@NOVADESCRICAO", novaDesc);
+
+                        int rowsAffected = cmd.ExecuteNonQuery();
+                        if (rowsAffected > 0)
+                        {
+                            lblStatusEditar.Text = "Item editado com sucesso!";
+                            timerStatusEdit.Start();
+                            txtDescEdit.Clear();
+                            txtNovaDescEdit.Clear();
+                            txtNovoValorEdit.Clear();
+                            LoadData();
+                        }
+                        else
+                        {
+                            lblStatusEditar.Text = "Item não existe!";
+                            timerStatusEdit.Start();
+                            txtDescEdit.Clear();
+                            txtNovaDescEdit.Clear();
+                            txtNovoValorEdit.Clear();
+                        }
                     }
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show("Erro ao editar os dados: " + ex.Message); // Exibe mensagem de erro
+                    MessageBox.Show("Erro ao editar os dados: " + ex.Message);
                 }
             }
         }
     }
 }
-
-
