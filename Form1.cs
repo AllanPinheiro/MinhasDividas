@@ -148,7 +148,7 @@ namespace MinhasDividas
             // Verifica se o campo está vazio e exibe uma mensagem caso esteja
             if (string.IsNullOrEmpty(descDel))
             {
-                lblStatusDel.Text = "Preencha o campo deletar."; // Exibe mensagem de status
+                lblStatusDel.Text = "Preencha o campo deletar."; 
                 timerStatusDel.Start(); // Inicia o timer para limpar a mensagem de status
                 return;
             }
@@ -180,7 +180,7 @@ namespace MinhasDividas
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show("Erro ao deletar os dados: " + ex.Message); // Exibe mensagem de erro
+                    MessageBox.Show("Erro ao deletar os dados: " + ex.Message); 
                 }
             }
         }
