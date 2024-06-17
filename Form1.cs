@@ -50,6 +50,7 @@ namespace MinhasDividas
             if (string.IsNullOrEmpty(desc) || string.IsNullOrEmpty(valor))
             {
                 lblStatus.Text = "Por favor, preencha todos os campos.";
+                lblStatus.ForeColor = Color.Red;
                 timerStatusAdd.Start();
                 return;
             }
@@ -68,6 +69,9 @@ namespace MinhasDividas
                         if (count > 0)
                         {
                             lblStatus.Text = "Item já existe no banco de dados.";
+                            lblStatus.ForeColor = Color.Red;
+                            txtDesc.Clear();
+                            txtValor.Clear();
                             timerStatusAdd.Start();
                             return;
                         }
@@ -83,6 +87,7 @@ namespace MinhasDividas
                         if (rowsAffected > 0)
                         {
                             lblStatus.Text = "Adicionado com sucesso!";
+                            lblStatus.ForeColor = Color.Green;
                             timerStatusAdd.Start();
                             txtDesc.Clear();
                             txtValor.Clear();
@@ -137,6 +142,7 @@ namespace MinhasDividas
             if (string.IsNullOrEmpty(descDel))
             {
                 lblStatusDel.Text = "Preencha o campo deletar.";
+                lblStatusDel.ForeColor = Color.Red;
                 timerStatusDel.Start();
                 return;
             }
@@ -155,6 +161,7 @@ namespace MinhasDividas
                     if (rowsAffected > 0)
                     {
                         lblStatusDel.Text = "Deletado com sucesso!";
+                        lblStatusDel.ForeColor = Color.Green;
                         timerStatusDel.Start();
                         txtDel.Clear();
                         LoadData();
@@ -162,6 +169,8 @@ namespace MinhasDividas
                     else
                     {
                         lblStatusDel.Text = "Item não existe!";
+                        lblStatusDel.ForeColor = Color.Red;
+                        txtDel.Clear();
                         timerStatusDel.Start();
                     }
                 }
@@ -181,6 +190,7 @@ namespace MinhasDividas
             if (string.IsNullOrEmpty(descEdit) || string.IsNullOrEmpty(valorEdit))
             {
                 lblStatusEditar.Text = "Preencha todos os campos para editar.";
+                lblStatusEditar.ForeColor = Color.Red;
                 timerStatusEdit.Start();
                 return;
             }
@@ -198,7 +208,8 @@ namespace MinhasDividas
                         int count = (int)checkCommand.ExecuteScalar();
                         if (count > 0)
                         {
-                            lblStatusEditar.Text = "Item já existe no banco de dados.";
+                            lblStatusEditar.Text = "Item já existe";
+                            lblStatusEditar.ForeColor = Color.Red;
                             txtDescEdit.Clear();
                             txtNovaDescEdit.Clear();
                             txtNovoValorEdit.Clear();
@@ -216,6 +227,7 @@ namespace MinhasDividas
                         if (rowsAffected > 0)
                         {
                             lblStatusEditar.Text = "Item editado com sucesso!";
+                            lblStatusEditar.ForeColor = Color.Green;
                             timerStatusEdit.Start();
                             txtDescEdit.Clear();
                             txtNovaDescEdit.Clear();
@@ -225,6 +237,7 @@ namespace MinhasDividas
                         else
                         {
                             lblStatusEditar.Text = "Item não existe!";
+                            lblStatusEditar.ForeColor = Color.Red;
                             timerStatusEdit.Start();
                             txtDescEdit.Clear();
                             txtNovaDescEdit.Clear();
