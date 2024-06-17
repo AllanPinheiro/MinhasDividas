@@ -132,6 +132,7 @@ namespace MinhasDividas
                 dividas.Remove(divida);
                 SaveData(); // Salva os dados atualizados
                 lblStatusDel.Text = "Deletado com sucesso!";
+                timerStatusDel.Start();
                 lblStatusDel.ForeColor = Color.Green;
                 txtDel.Clear();
                 LoadData(); // Atualiza a exibição na lista
@@ -180,6 +181,7 @@ namespace MinhasDividas
                 divida.Valor = decimal.Parse(valorEdit);
                 SaveData(); // Salva os dados atualizados
                 lblStatusEditar.Text = "Item editado com sucesso!";
+                timerStatusEdit.Start();
                 lblStatusEditar.ForeColor = Color.Green;
                 txtDescEdit.Clear();
                 txtNovaDescEdit.Clear();
@@ -201,7 +203,7 @@ namespace MinhasDividas
     // Classe para representar uma dívida
     public class Divida
     {
-        public string Descricao { get; set; }
+        public string? Descricao { get; set; }
         public decimal Valor { get; set; }
     }
 }
