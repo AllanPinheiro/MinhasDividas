@@ -115,7 +115,7 @@ namespace MinhasDividas
                 try
                 {
                     connection.Open(); // Abre a conexão com o banco de dados
-                    string query = "SELECT ID, DESCRICAO, VALOR FROM DIVIDAS ORDER BY ID ASC;"; // Consulta SQL
+                    string query = "SELECT DESCRICAO, VALOR FROM DIVIDAS;"; // Consulta SQL
                     SqlDataAdapter da = new SqlDataAdapter(query, connection); // Cria um adaptador de dados
                     DataTable dt = new DataTable(); // Cria uma tabela de dados
                     da.Fill(dt); // Preenche a tabela com os dados obtidos pela consulta
@@ -124,11 +124,10 @@ namespace MinhasDividas
 
                     foreach (DataRow row in dt.Rows) // Loop para cada linha da tabela de dados
                     {
-                        int id = Convert.ToInt32(row["ID"]); // Obtém o ID do registro
                         decimal valor = Convert.ToDecimal(row["VALOR"]); // Obtém o valor do registro
                         somaTotal += valor; // Adiciona o valor à soma total
                         string valorFormatado = valor.ToString("C2", new System.Globalization.CultureInfo("pt-BR")); // Formata o valor para exibição
-                        lstItems.Items.Add($"---- ID: {id} ---- Descrição: {row["DESCRICAO"]} ---- Valor R$: {valorFormatado} ----"); // Adiciona o item à lista
+                        lstItems.Items.Add($"---- Descrição: {row["DESCRICAO"]} ---- Valor R$: {valorFormatado} ----"); // Adiciona o item à lista
                     }
 
                     string somaTotalFormatada = somaTotal.ToString("C2", new System.Globalization.CultureInfo("pt-BR")); // Formata a soma total para exibição
@@ -189,7 +188,7 @@ namespace MinhasDividas
         // Método chamado quando o botão de edição é clicado
         private void btnEditar_Click(object sender, EventArgs e)
         {
-            string id = txtIdEdit.Text; // Obtém o ID do campo de texto para edição
+            string novaDesc = txtIdEdit.Text; // Obtém o ID do campo de texto para edição
             string descEdit = txtDescEdit.Text; // Obtém a nova descrição do campo de texto para edição
             string valorEdit = txtValorEdit.Text; // Obtém o novo valor do campo de texto para edição
 
@@ -208,11 +207,11 @@ namespace MinhasDividas
                 try
                 {
                     connection.Open(); // Abre a conexão com o banco de dados
-                    string query = "UPDATE DIVIDAS SET DESCRICAO = @DESCRICAO, VALOR = @VALOR WHERE ID = @ID"; // Comando SQL para atualizar um registro
+                    string query = "UPDATE DIVIDAS SET DESCRICAO = @DESCRICAO, VALOR = @VALOR WHERE DESCRICAO = @NOVADESCRICAO"; // Comando SQL para atualizar um registro
                     SqlCommand cmd = new SqlCommand(query, connection); // Cria um comando SQL
                     cmd.Parameters.AddWithValue("@DESCRICAO", descEdit); // Adiciona parâmetro ao comando SQL para a nova descrição
                     cmd.Parameters.AddWithValue("@VALOR", valorEdit); // Adiciona parâmetro ao comando SQL para o novo valor
-                    cmd.Parameters.AddWithValue("@ID", id); // Adiciona parâmetro ao comando SQL para o ID do registro a ser editado
+                    cmd.Parameters.AddWithValue("@NOVADESCRICAO", novaDesc); // Adiciona parâmetro ao comando SQL para o ID do registro a ser editado
 
                     int rowsAffected = cmd.ExecuteNonQuery(); // Executa o comando SQL e obtém o número de linhas afetadas
                     if (rowsAffected > 0)
