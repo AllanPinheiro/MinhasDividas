@@ -1,12 +1,11 @@
-using Microsoft.Data.SqlClient;
-using System.Data;
-using System.Drawing;
-using System.Windows.Forms;
+using Newtonsoft.Json;
 
 namespace MinhasDividas
 {
     public partial class Form1 : Form
     {
+        private List<Divida> dividas;
+        private string arquivoDados = "dados.json";
         private System.Windows.Forms.Timer timerStatusAdd;
         private System.Windows.Forms.Timer timerStatusDel;
         private System.Windows.Forms.Timer timerStatusEdit;
@@ -55,84 +54,62 @@ namespace MinhasDividas
                 return;
             }
 
-            string connectionString = "Data Source=DESKTOP-QRDBJEB\\SQLEXPRESS;Initial Catalog=DBMINHASDIVIDA;Integrated Security=True;Connect Timeout=30;Encrypt=True;Trust Server Certificate=True;Application Intent=ReadWrite;Multi Subnet Failover=False";
-            using (SqlConnection connection = new SqlConnection(connectionString))
+            // Verifica se a descrição já existe
+            if (dividas.Any(d => d.Descricao == desc))
             {
-                try
-                {
-                    connection.Open();
-                    string checkQuery = "SELECT COUNT(1) FROM DIVIDAS WHERE DESCRICAO = @DESCRICAO";
-                    using (SqlCommand checkCommand = new SqlCommand(checkQuery, connection))
-                    {
-                        checkCommand.Parameters.AddWithValue("@DESCRICAO", desc);
-                        int count = (int)checkCommand.ExecuteScalar();
-                        if (count > 0)
-                        {
-                            lblStatus.Text = "Item já existe no banco de dados.";
-                            lblStatus.ForeColor = Color.Red;
-                            txtDesc.Clear();
-                            txtValor.Clear();
-                            timerStatusAdd.Start();
-                            return;
-                        }
-                    }
-
-                    string insertQuery = "INSERT INTO DIVIDAS (DESCRICAO, VALOR) VALUES (@DESCRICAO, @VALOR)";
-                    using (SqlCommand cmd = new SqlCommand(insertQuery, connection))
-                    {
-                        cmd.Parameters.AddWithValue("@DESCRICAO", desc);
-                        cmd.Parameters.AddWithValue("@VALOR", valor);
-
-                        int rowsAffected = cmd.ExecuteNonQuery();
-                        if (rowsAffected > 0)
-                        {
-                            lblStatus.Text = "Adicionado com sucesso!";
-                            lblStatus.ForeColor = Color.Green;
-                            timerStatusAdd.Start();
-                            txtDesc.Clear();
-                            txtValor.Clear();
-                            LoadData();
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show("Erro ao adicionar os dados: " + ex.Message);
-                }
+                lblStatus.Text = "Item já existe na lista.";
+                lblStatus.ForeColor = Color.Red;
+                txtDesc.Clear();
+                txtValor.Clear();
+                timerStatusAdd.Start();
+                return;
             }
+
+            // Adiciona a nova dívida à lista
+            dividas.Add(new Divida { Descricao = desc, Valor = decimal.Parse(valor) });
+            SaveData(); // Salva os dados atualizados
+
+            lblStatus.Text = "Adicionado com sucesso!";
+            lblStatus.ForeColor = Color.Green;
+            timerStatusAdd.Start();
+            txtDesc.Clear();
+            txtValor.Clear();
+            LoadData(); // Atualiza a exibição na lista
         }
 
         private void LoadData()
         {
-            string connectionString = "Data Source=DESKTOP-QRDBJEB\\SQLEXPRESS;Initial Catalog=DBMINHASDIVIDA;Integrated Security=True;Connect Timeout=30;Encrypt=True;Trust Server Certificate=True;Application Intent=ReadWrite;Multi Subnet Failover=False";
-            using (SqlConnection connection = new SqlConnection(connectionString))
+            // Carrega os dados do arquivo JSON
+            if (File.Exists(arquivoDados))
             {
-                try
-                {
-                    connection.Open();
-                    string query = "SELECT DESCRICAO, VALOR FROM DIVIDAS;";
-                    SqlDataAdapter da = new SqlDataAdapter(query, connection);
-                    DataTable dt = new DataTable();
-                    da.Fill(dt);
-                    lstItems.Items.Clear();
-                    decimal somaTotal = 0;
-
-                    foreach (DataRow row in dt.Rows)
-                    {
-                        decimal valor = Convert.ToDecimal(row["VALOR"]);
-                        somaTotal += valor;
-                        string valorFormatado = valor.ToString("C2", new System.Globalization.CultureInfo("pt-BR"));
-                        lstItems.Items.Add($"---- Descrição: {row["DESCRICAO"]} ---- Valor R$: {valorFormatado} ----");
-                    }
-
-                    string somaTotalFormatada = somaTotal.ToString("C2", new System.Globalization.CultureInfo("pt-BR"));
-                    lblSomaValor.Text = $"{somaTotalFormatada}";
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show("Erro ao carregar os dados: " + ex.Message);
-                }
+                string json = File.ReadAllText(arquivoDados);
+                dividas = JsonConvert.DeserializeObject<List<Divida>>(json);
             }
+            else
+            {
+                dividas = new List<Divida>();
+            }
+
+            // Atualiza a exibição na lista
+            lstItems.Items.Clear();
+            decimal somaTotal = 0;
+
+            foreach (var divida in dividas)
+            {
+                somaTotal += divida.Valor;
+                string valorFormatado = divida.Valor.ToString("C2");
+                lstItems.Items.Add($"---- Descrição: {divida.Descricao} ---- Valor R$: {valorFormatado} ----");
+            }
+
+            string somaTotalFormatada = somaTotal.ToString("C2");
+            lblSomaValor.Text = $"{somaTotalFormatada}";
+        }
+
+        private void SaveData()
+        {
+            // Salva os dados atuais para o arquivo JSON
+            string json = JsonConvert.SerializeObject(dividas);
+            File.WriteAllText(arquivoDados, json);
         }
 
         private void btnDel_Click(object sender, EventArgs e)
@@ -147,37 +124,24 @@ namespace MinhasDividas
                 return;
             }
 
-            string connectionString = "Data Source=DESKTOP-QRDBJEB\\SQLEXPRESS;Initial Catalog=DBMINHASDIVIDA;Integrated Security=True;Connect Timeout=30;Encrypt=True;Trust Server Certificate=True;Application Intent=ReadWrite;Multi Subnet Failover=False";
-            using (SqlConnection connection = new SqlConnection(connectionString))
-            {
-                try
-                {
-                    connection.Open();
-                    string query = "DELETE FROM DIVIDAS WHERE DESCRICAO = @DESCRICAO";
-                    SqlCommand cmd = new SqlCommand(query, connection);
-                    cmd.Parameters.AddWithValue("@DESCRICAO", descDel);
+            // Busca a dívida pelo nome e remove da lista
+            var divida = dividas.FirstOrDefault(d => d.Descricao == descDel);
 
-                    int rowsAffected = cmd.ExecuteNonQuery();
-                    if (rowsAffected > 0)
-                    {
-                        lblStatusDel.Text = "Deletado com sucesso!";
-                        lblStatusDel.ForeColor = Color.Green;
-                        timerStatusDel.Start();
-                        txtDel.Clear();
-                        LoadData();
-                    }
-                    else
-                    {
-                        lblStatusDel.Text = "Item não existe!";
-                        lblStatusDel.ForeColor = Color.Red;
-                        txtDel.Clear();
-                        timerStatusDel.Start();
-                    }
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show("Erro ao deletar os dados: " + ex.Message);
-                }
+            if (divida != null)
+            {
+                dividas.Remove(divida);
+                SaveData(); // Salva os dados atualizados
+                lblStatusDel.Text = "Deletado com sucesso!";
+                lblStatusDel.ForeColor = Color.Green;
+                txtDel.Clear();
+                LoadData(); // Atualiza a exibição na lista
+            }
+            else
+            {
+                lblStatusDel.Text = "Item não existe!";
+                lblStatusDel.ForeColor = Color.Red;
+                txtDel.Clear();
+                timerStatusDel.Start();
             }
         }
 
@@ -195,61 +159,49 @@ namespace MinhasDividas
                 return;
             }
 
-            string connectionString = "Data Source=DESKTOP-QRDBJEB\\SQLEXPRESS;Initial Catalog=DBMINHASDIVIDA;Integrated Security=True;Connect Timeout=30;Encrypt=True;Trust Server Certificate=True;Application Intent=ReadWrite;Multi Subnet Failover=False";
-            using (SqlConnection connection = new SqlConnection(connectionString))
+            // Verifica se a nova descrição já existe na lista
+            if (dividas.Any(d => d.Descricao == descEdit))
             {
-                try
-                {
-                    string checkQuery = "SELECT COUNT(1) FROM DIVIDAS WHERE DESCRICAO = @DESCRICAO";
-                    using (SqlCommand checkCommand = new SqlCommand(checkQuery, connection))
-                    {
-                        connection.Open();
-                        checkCommand.Parameters.AddWithValue("@DESCRICAO", descEdit);
-                        int count = (int)checkCommand.ExecuteScalar();
-                        if (count > 0)
-                        {
-                            lblStatusEditar.Text = "Item já existe";
-                            lblStatusEditar.ForeColor = Color.Red;
-                            txtDescEdit.Clear();
-                            txtNovaDescEdit.Clear();
-                            txtNovoValorEdit.Clear();
-                            timerStatusEdit.Start();
-                            return;
-                        }
+                lblStatusEditar.Text = "Item já existe";
+                lblStatusEditar.ForeColor = Color.Red;
+                txtDescEdit.Clear();
+                txtNovaDescEdit.Clear();
+                txtNovoValorEdit.Clear();
+                timerStatusEdit.Start();
+                return;
+            }
 
-                        string query = "UPDATE DIVIDAS SET DESCRICAO = @DESCRICAO, VALOR = @VALOR WHERE DESCRICAO = @NOVADESCRICAO";
-                        SqlCommand cmd = new SqlCommand(query, connection);
-                        cmd.Parameters.AddWithValue("@DESCRICAO", descEdit);
-                        cmd.Parameters.AddWithValue("@VALOR", valorEdit);
-                        cmd.Parameters.AddWithValue("@NOVADESCRICAO", novaDesc);
+            // Busca a dívida pelo nome antigo e atualiza na lista
+            var divida = dividas.FirstOrDefault(d => d.Descricao == novaDesc);
 
-                        int rowsAffected = cmd.ExecuteNonQuery();
-                        if (rowsAffected > 0)
-                        {
-                            lblStatusEditar.Text = "Item editado com sucesso!";
-                            lblStatusEditar.ForeColor = Color.Green;
-                            timerStatusEdit.Start();
-                            txtDescEdit.Clear();
-                            txtNovaDescEdit.Clear();
-                            txtNovoValorEdit.Clear();
-                            LoadData();
-                        }
-                        else
-                        {
-                            lblStatusEditar.Text = "Item não existe!";
-                            lblStatusEditar.ForeColor = Color.Red;
-                            timerStatusEdit.Start();
-                            txtDescEdit.Clear();
-                            txtNovaDescEdit.Clear();
-                            txtNovoValorEdit.Clear();
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show("Erro ao editar os dados: " + ex.Message);
-                }
+            if (divida != null)
+            {
+                divida.Descricao = descEdit;
+                divida.Valor = decimal.Parse(valorEdit);
+                SaveData(); // Salva os dados atualizados
+                lblStatusEditar.Text = "Item editado com sucesso!";
+                lblStatusEditar.ForeColor = Color.Green;
+                txtDescEdit.Clear();
+                txtNovaDescEdit.Clear();
+                txtNovoValorEdit.Clear();
+                LoadData(); // Atualiza a exibição na lista
+            }
+            else
+            {
+                lblStatusEditar.Text = "Item não existe!";
+                lblStatusEditar.ForeColor = Color.Red;
+                timerStatusEdit.Start();
+                txtDescEdit.Clear();
+                txtNovaDescEdit.Clear();
+                txtNovoValorEdit.Clear();
             }
         }
+    }
+
+    // Classe para representar uma dívida
+    public class Divida
+    {
+        public string Descricao { get; set; }
+        public decimal Valor { get; set; }
     }
 }
