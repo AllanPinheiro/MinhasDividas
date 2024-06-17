@@ -284,9 +284,9 @@
             label7.Font = new Font("Segoe UI", 12F, FontStyle.Bold);
             label7.Location = new Point(17, 434);
             label7.Name = "label7";
-            label7.Size = new Size(27, 21);
+            label7.Size = new Size(88, 21);
             label7.TabIndex = 24;
-            label7.Text = "ID";
+            label7.Text = "Descrição ";
             // 
             // Form1
             // 
