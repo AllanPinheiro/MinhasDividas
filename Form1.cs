@@ -12,7 +12,6 @@ namespace MinhasDividas
 
         public Form1()
         {
-            InitializeComponent();
             LoadData();
             InitializeTimers();
         }
